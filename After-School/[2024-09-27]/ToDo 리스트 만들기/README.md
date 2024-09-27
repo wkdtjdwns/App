@@ -615,3 +615,870 @@
     export default Input;
     
     ```
+
+# **input 컴포넌트 입력 값 받기**
+
+- **지금은 Input 컴포넌트에서 값을 입력하면 화면에 텍스트가 잘 나타남.**
+- **하지만 어떤 변수에도 그 값이 저장되어 있지 않음.**
+- **그래서 입력된 값을 사용할 수 없는 상태임.**
+- **SignInScreen 컴포넌트에 이메일과 비밀번호를 저장할 상태 변수를 만들기.**
+- **변수는 어디에 설정해야 할까? → 그 값을 쓰는 화면 → SignInScreen.js를 변경함.**
+    
+    ```jsx
+    import { Image, StyleSheet, Text, View } from 'react-native';
+    import Input, { KeyboardTypes, ReturnKeyTypes } from '../components/Input';
+    import { useState } from 'react';
+    
+    const SignInScreen = () => {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+    
+      return (
+        <View style={styles.container}>
+          <Image source={require('../../assets/main.png')} style={styles.Image} />
+    
+          <Input
+            title={'이메일'}
+            placeholder="test@email.com"
+            keyboardType={KeyboardTypes.EMAIL}
+            returnKeyType={ReturnKeyTypes.NEXT}
+          />
+          <Input
+            title={'비밀번호'}
+            returnKeyType={ReturnKeyTypes.DONE}
+            secureTextEntry
+          />
+        </View>
+      );
+    };
+    
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    
+      image: {
+        width: 200,
+        height: 200,
+      },
+    });
+    
+    export default SignInScreen;
+    ```
+    
+- **생성한 상태 변수를 사용해서 Input 컴포넌트를 통해 입력되는 값을 저장함.**
+- **TextInput 컴포넌트에 입력된 텍스트가 변할 때마다 호출되는 props는 onChange와 onChangeText가 있음.**
+- **단순히 변경되는 텍스트만 처리하면 될 때에는 onChangeText를 사용함.**
+- **TextInput 컴포넌트에 특정 변숫값을 보여주고 싶을 때에는 value라는 props를 사용함.**
+- **우리는 onChangeText를 통해 변경된 상태 변수를 보여줘야 하므로 email 혹은 password를 value로 전달하면 됨.**
+- **SignInScreen.js 파일을 아래와 같이 변경함.**
+    
+    ```jsx
+    import { Image, StyleSheet, Text, View } from 'react-native';
+    import Input, { KeyboardTypes, ReturnKeyTypes } from '../components/Input';
+    import { useState } from 'react';
+    
+    const SignInScreen = () => {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+    
+      console.log(email, password);
+    
+      return (
+        <View style={styles.container}>
+          <Image source={require('../../assets/main.png')} style={styles.Image} />
+    
+          <Input
+            title={'이메일'}
+            placeholder="test@email.com"
+            keyboardType={KeyboardTypes.EMAIL}
+            returnKeyType={ReturnKeyTypes.NEXT}
+            value={email}
+            onChangeText={(email) => setEmail(email.trim())}
+          />
+          <Input
+            title={'비밀번호'}
+            returnKeyType={ReturnKeyTypes.DONE}
+            secureTextEntry
+            value={password}
+            onChangeText={(password) => setEmail(password.trim())}
+          />
+        </View>
+      );
+    };
+    
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    
+      image: {
+        width: 200,
+        height: 200,
+      },
+    });
+    
+    export default SignInScreen;
+    ```
+  
+<br>
+
+# **input 컴포넌트 꾸미기 - 색 관리 하기**
+
+- **프로젝트에서 사용할 색을 관리하기.**
+- **프로젝트의 대표색을 보통 프라이머리 컬러(Primary Color)라고 함.**
+- **우리 프로젝트에서는 프라이머리 컬러를 파란색으로 정하도록 함.**
+- **그리고 현재 Input 컴포넌트에서 placeholderTextColor에 사용되고 있는 회색을 GRAY의 DEFAULT로 만듦.**
+- **추가로, 기본이 되는 검은색과 흰색도 추가함.**
+- **src 폴더 밑에 colors.js 파일을 만들고 다음과 같이 작성함.**
+    
+    ```jsx
+    export const WHITE = '#ffffff';
+    export const BLACK = '#000000';
+    
+    export const PRIMARY = {
+      DEFAULT: '#2563eb',
+    };
+    
+    export const GRAY = {
+      DEFAULT: '#a3a3a3',
+    };
+    ```
+    
+- **App.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { StatusBar } from 'expo-status-bar';
+    import { StyleSheet, Text, View } from 'react-native';
+    import SignInScreen from './screen/SignInScreen';
+    import { WHITE } from './colors';
+    
+    export default function App() {
+      return (
+        <View style={styles.container}>
+          <StatusBar style="dark" />
+          <SignInScreen />
+        </View>
+      );
+    }
+    
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        backgroundColor: WHITE,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+    });
+    ```
+    
+- **Input.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { StyleSheet, Text, TextInput, View } from 'react-native';
+    import PropTypes from 'prop-types';
+    import { GRAY } from '../colors';
+    
+    export const keyboardTypes = {
+      DEFAULT: 'default',
+      EMAIL: 'email-address',
+    };
+    
+    export const ReturnKeyTypes = {
+      DONE: 'done',
+      NEXT: 'next',
+    };
+    
+    const Input = ({ title, placeholder, ...props }) => {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.title}>{title}</Text>
+          <TextInput
+            {...props}
+            style={styles.input}
+            placeholder={placeholder ?? title}
+            placeholderTextColor={GRAY.DEFAULT}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+      );
+    };
+    
+    Input.defaultProps = {
+      keyboardType: keyboardTypes.DEFAULT,
+      returnKeyType: ReturnKeyTypes.DONE,
+    };
+    
+    Input.PropTypes = {
+      title: PropTypes.string.isRequired,
+      placeholder: PropTypes.string,
+      keyboardTypes: PropTypes.oneOf(Object.values(keyboardTypes)),
+      returnKeyType: PropTypes.oneOf(Object.values(ReturnKeyTypes)),
+      secureTextEntry: PropTypes.bool,
+    };
+    
+    const styles = StyleSheet.create({
+      container: {
+        width: '100%',
+        paddingHorizontal: 20,
+        marginVertical: 10,
+      },
+    
+      title: {
+        marginBottom: 4,
+      },
+    
+      input: {
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        height: 42,
+      },
+    });
+    
+    export default Input;
+    
+    ```
+  
+<br>
+
+# **input 컴포넌트 꾸미기 - 포커스 유무에 따라 스타일 변경하기**
+
+- **TextInput 컴포넌트의 포스트 유무에 따라 스타일이 다르게 적용되도록 만들어 봄.**
+- **TextInput 컴포넌트에는 onFocus 와 onBlur라는 props가 있는데, 각각 TextInput 컴포넌트가 포커스를 얻거나 읽었을 때 호출되는 함수임.**
+- **Input.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { StyleSheet, Text, TextInput, View } from 'react-native';
+    import PropTypes from 'prop-types';
+    import { GRAY, PRIMARY } from '../colors';
+    import { useState } from 'react';
+    
+    export const keyboardTypes = {
+      DEFAULT: 'default',
+      EMAIL: 'email-address',
+    };
+    
+    export const ReturnKeyTypes = {
+      DONE: 'done',
+      NEXT: 'next',
+    };
+    
+    const Input = ({ title, placeholder, ...props }) => {
+      const [isFocused, setIsFocused] = useState(false);
+    
+      return (
+        <View style={styles.container}>
+          <Text style={[styles.title, isFocused && styles.focusedTitle]}>
+            {title}
+          </Text>
+          <TextInput
+            {...props}
+            style={[styles.input, isFocused && styles.focusedInput]}
+            placeholder={placeholder ?? title}
+            placeholderTextColor={GRAY.DEFAULT}
+            autoCapitalize="none"
+            autoCorrect={false}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+        </View>
+      );
+    };
+    
+    Input.defaultProps = {
+      keyboardType: keyboardTypes.DEFAULT,
+      returnKeyType: ReturnKeyTypes.DONE,
+    };
+    
+    Input.PropTypes = {
+      title: PropTypes.string.isRequired,
+      placeholder: PropTypes.string,
+      keyboardTypes: PropTypes.oneOf(Object.values(keyboardTypes)),
+      returnKeyType: PropTypes.oneOf(Object.values(ReturnKeyTypes)),
+      secureTextEntry: PropTypes.bool,
+    };
+    
+    const styles = StyleSheet.create({
+      container: {
+        width: '100%',
+        paddingHorizontal: 20,
+        marginVertical: 10,
+      },
+    
+      title: {
+        marginBottom: 4,
+        color: GRAY.DEFAULT,
+      },
+    
+      focusedTitle: {
+        fontWeight: '600',
+        color: PRIMARY.DEFAULT,
+      },
+    
+      input: {
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        height: 42,
+        borderColor: GRAY.DEFAULT,
+      },
+    
+      focusedInput: {
+        borderWidth: 2,
+        borderColor: PRIMARY.DEFAULT,
+        color: PRIMARY.DEFAULT,
+      },
+    });
+    
+    export default Input;
+    ```
+    
+    ![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/6c497a36-044d-4acb-b996-e61b39f492c9/9652c3bf-938f-46c6-8108-89811f4e3e1b/image.png)
+    
+<br>
+
+# **input 컴포넌트 꾸미기 - 값의 입력 여부에 따라 스타일 변경하기**
+
+- **포커스가 없는 상태에서도 값이 있을 때와 없을 때, 다른 모습으로 보여지게 스타일을 변경함.**
+- **Input.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { StyleSheet, Text, TextInput, View } from 'react-native';
+    import PropTypes from 'prop-types';
+    import { BLACK, GRAY, PRIMARY } from '../colors';
+    import { useState } from 'react';
+    
+    export const keyboardTypes = {
+      DEFAULT: 'default',
+      EMAIL: 'email-address',
+    };
+    
+    export const ReturnKeyTypes = {
+      DONE: 'done',
+      NEXT: 'next',
+    };
+    
+    const Input = ({ title, placeholder, value, ...props }) => {
+      const [isFocused, setIsFocused] = useState(false);
+    
+      return (
+        <View style={styles.container}>
+          <Text
+            style={[
+              styles.title,
+              isFocused && styles.focusedTitle,
+              isFocused && styles.hasValueTitle,
+            ]}
+          >
+            {title}
+          </Text>
+          <TextInput
+            {...props}
+            style={[
+              styles.input,
+              isFocused && styles.focusedInput,
+              isFocused && styles.hasValueInput,
+            ]}
+            placeholder={placeholder ?? title}
+            placeholderTextColor={GRAY.DEFAULT}
+            autoCapitalize="none"
+            autoCorrect={false}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+        </View>
+      );
+    };
+    
+    Input.defaultProps = {
+      keyboardType: keyboardTypes.DEFAULT,
+      returnKeyType: ReturnKeyTypes.DONE,
+    };
+    
+    Input.PropTypes = {
+      title: PropTypes.string.isRequired,
+      placeholder: PropTypes.string,
+      keyboardTypes: PropTypes.oneOf(Object.values(keyboardTypes)),
+      returnKeyType: PropTypes.oneOf(Object.values(ReturnKeyTypes)),
+      secureTextEntry: PropTypes.bool,
+      value: PropTypes.string,
+    };
+    
+    const styles = StyleSheet.create({
+      hasValueTitle: {
+        color: BLACK,
+      },
+    
+      hasValueInput: {
+        borderColor: BLACK,
+        color: BLACK,
+      },
+    
+      container: {
+        width: '100%',
+        paddingHorizontal: 20,
+        marginVertical: 10,
+      },
+    
+      title: {
+        marginBottom: 4,
+        color: GRAY.DEFAULT,
+      },
+    
+      focusedTitle: {
+        fontWeight: '600',
+        color: PRIMARY.DEFAULT,
+      },
+    
+      input: {
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        height: 42,
+        borderColor: GRAY.DEFAULT,
+      },
+    
+      focusedInput: {
+        borderWidth: 2,
+        borderColor: PRIMARY.DEFAULT,
+        color: PRIMARY.DEFAULT,
+      },
+    });
+    
+    export default Input;
+    ```
+    
+    ![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/6c497a36-044d-4acb-b996-e61b39f492c9/4bfd6043-07fb-4052-821e-b76993aa0f13/image.png)
+    
+<br>
+
+# **input 컴포넌트 꾸미기 - 벡터 아이콘 추가하기**
+
+- [**벡터 아이콘](https://icons.expo.fyi/)은 크기를 변경해도 흐려지지 않고 다양한 해상도에서 선명하게 나타난다는 장점이 있음.**
+- **또한 색상 변경이 쉬워서 스타일을 적용하는데 용이함.**
+- **Expo에서 제공하는 vector-icons를 이용하여 작업 함.**
+- **아이콘 적용하는 과정**
+    - **TextInput 컴포넌트를 감싸는 View 컴포넌트 (A)를 만듦.**
+    - **A 컴포넌트의 자식 컴포넌트로 View 컴포넌트 (B)를 만들고 높이를 100%로 설정함.**
+    - **B 컴포넌트에서 중앙 정렬을 하고 자식 컴포넌트로 아이콘을 사용함.**
+- **Input.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { StyleSheet, Text, TextInput, View } from 'react-native';
+    import PropTypes from 'prop-types';
+    import { BLACK, GRAY, PRIMARY } from '../colors';
+    import { useState } from 'react';
+    import { MaterialCommunityIcons } from '@expo/vector-icons';
+    
+    export const keyboardTypes = {
+      DEFAULT: 'default',
+      EMAIL: 'email-address',
+    };
+    
+    export const ReturnKeyTypes = {
+      DONE: 'done',
+      NEXT: 'next',
+    };
+    
+    export const IconNames = {
+      EMAIL: 'email',
+      PASSWORD: 'lock',
+    };
+    
+    const Input = ({ title, placeholder, value, iconName, ...props }) => {
+      const [isFocused, setIsFocused] = useState(false);
+    
+      return (
+        <View style={styles.container}>
+          <Text
+            style={[
+              styles.title,
+              isFocused && styles.focusedTitle,
+              isFocused && styles.hasValueTitle,
+            ]}
+          >
+            {title}{' '}
+          </Text>
+          <View>
+            <TextInput
+              {...props}
+              style={[
+                styles.input,
+                isFocused && styles.focusedInput,
+                isFocused && styles.hasValueInput,
+              ]}
+              placeholder={placeholder ?? title}
+              placeholderTextColor={GRAY.DEFAULT}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <View style={styles.icon}>
+              <MaterialCommunityIcons
+                name={iconName}
+                size={20}
+                color={(() => {
+                  switch (true) {
+                    case isFocused:
+                      return PRIMARY.DEFAULT;
+                    case !!value:
+                      return BLACK;
+                    default:
+                      return GRAY.DEFAULT;
+                  }
+                })()}
+              />
+            </View>
+          </View>
+        </View>
+      );
+    };
+    
+    Input.defaultProps = {
+      keyboardType: keyboardTypes.DEFAULT,
+      returnKeyType: ReturnKeyTypes.DONE,
+    };
+    
+    Input.PropTypes = {
+      title: PropTypes.string.isRequired,
+      placeholder: PropTypes.string,
+      keyboardTypes: PropTypes.oneOf(Object.values(keyboardTypes)),
+      returnKeyType: PropTypes.oneOf(Object.values(ReturnKeyTypes)),
+      secureTextEntry: PropTypes.bool,
+      value: PropTypes.string,
+      iconName: PropTypes.oneOf(Object.values(IconNames)),
+    };
+    
+    const styles = StyleSheet.create({
+      hasValueTitle: {
+        color: BLACK,
+      },
+    
+      hasValueInput: {
+        borderColor: BLACK,
+        color: BLACK,
+      },
+    
+      container: {
+        width: '100%',
+        paddingHorizontal: 20,
+        marginVertical: 10,
+      },
+    
+      title: {
+        marginBottom: 4,
+        color: GRAY.DEFAULT,
+      },
+    
+      focusedTitle: {
+        fontWeight: '600',
+        color: PRIMARY.DEFAULT,
+      },
+    
+      input: {
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        height: 42,
+        borderColor: GRAY.DEFAULT,
+        paddingLeft: 30,
+      },
+    
+      icon: {
+        position: 'absolute',
+        left: 8,
+        height: '100%',
+        justifyContent: 'center',
+      },
+    
+      focusedInput: {
+        borderWidth: 2,
+        borderColor: PRIMARY.DEFAULT,
+        color: PRIMARY.DEFAULT,
+      },
+    });
+    
+    export default Input;
+    
+    ```
+    
+- **SignInScreen.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { Image, StyleSheet, Text, View } from 'react-native';
+    import Input, {
+      KeyboardTypes,
+      ReturnKeyTypes,
+      IconNames,
+    } from '../components/Input';
+    import { useState } from 'react';
+    
+    const SignInScreen = () => {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+    
+      console.log(email, password);
+    
+      return (
+        <View style={styles.container}>
+          <Image source={require('../../assets/main.png')} style={styles.Image} />
+    
+          <Input
+            title={'이메일'}
+            placeholder="test@email.com"
+            keyboardType={KeyboardTypes.EMAIL}
+            returnKeyType={ReturnKeyTypes.NEXT}
+            value={email}
+            onChangeText={(email) => setEmail(email.trim())}
+            iconName={IconNames.EMAIL}
+          />
+          <Input
+            title={'비밀번호'}
+            returnKeyType={ReturnKeyTypes.DONE}
+            secureTextEntry
+            value={password}
+            onChangeText={(password) => setEmail(password.trim())}
+            iconName={IconNames.PASSWORD}
+          />
+        </View>
+      );
+    };
+    
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    
+      image: {
+        width: 200,
+        height: 200,
+      },
+    });
+    
+    export default SignInScreen;
+    
+    ```
+    
+    ![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/6c497a36-044d-4acb-b996-e61b39f492c9/27ce63d0-f52a-415a-9224-54eb064c9ccc/image.png)
+  
+<br>
+
+# **useRefHook 으로 입력 칸 이동하기**
+
+- **현재 이메일을 입력할 때 나타나는 키보드의 완료 버튼에는 next가 나타나고 있는데, 클릭하면 다음으로 넘어가는 것이 아니라 키보드가 사라지기만 함.**
+- **이번에는 next 버튼을 눌렀을 때 포커스가 비밀번호를 입력하는 컴포넌트로 이동하게 만들어 봄.**
+- https://ko.react.dev/reference/react/useRef
+- **SignInScreen.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { Image, StyleSheet, Text, View } from 'react-native';
+    import Input, {
+      KeyboardTypes,
+      ReturnKeyTypes,
+      IconNames,
+    } from '../components/Input';
+    import { useState, useRef } from 'react';
+    
+    const SignInScreen = () => {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const passwordRef = useRef(null);
+    
+      console.log(email, password);
+    
+      return (
+        <View style={styles.container}>
+          <Image source={require('../../assets/main.png')} style={styles.Image} />
+    
+          <Input
+            title={'이메일'}
+            placeholder="test@email.com"
+            keyboardType={KeyboardTypes.EMAIL}
+            returnKeyType={ReturnKeyTypes.NEXT}
+            value={email}
+            onChangeText={(email) => setEmail(email.trim())}
+            iconName={IconNames.EMAIL}
+          />
+          <Input
+            ref={passwordRef}
+            title={'비밀번호'}
+            returnKeyType={ReturnKeyTypes.DONE}
+            secureTextEntry
+            value={password}
+            onChangeText={(password) => setEmail(password.trim())}
+            iconName={IconNames.PASSWORD}
+          />
+        </View>
+      );
+    };
+    
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+    
+      image: {
+        width: 200,
+        height: 200,
+      },
+    });
+    
+    export default SignInScreen;
+    
+    ```
+    
+- **Input.js 파일을 아래와 같이 수정함.**
+    
+    ```jsx
+    import { StyleSheet, Text, TextInput, View } from 'react-native';
+    import PropTypes from 'prop-types';
+    import { BLACK, GRAY, PRIMARY } from '../colors';
+    import { useState, forwardRef } from 'react';
+    import { MaterialCommunityIcons } from '@expo/vector-icons';
+    
+    export const keyboardTypes = {
+      DEFAULT: 'default',
+      EMAIL: 'email-address',
+    };
+    
+    export const ReturnKeyTypes = {
+      DONE: 'done',
+      NEXT: 'next',
+    };
+    
+    export const IconNames = {
+      EMAIL: 'email',
+      PASSWORD: 'lock',
+    };
+    
+    const Input = ({ title, placeholder, value, iconName, ...props }) => {
+      const [isFocused, setIsFocused] = useState(false);
+    
+      return (
+        <View style={styles.container}>
+          <Text
+            style={[
+              styles.title,
+              isFocused && styles.focusedTitle,
+              isFocused && styles.hasValueTitle,
+            ]}
+          >
+            {title}{' '}
+          </Text>
+          <View>
+            <TextInput
+              {...props}
+              ref={ref}
+              style={[
+                styles.input,
+                isFocused && styles.focusedInput,
+                isFocused && styles.hasValueInput,
+              ]}
+              placeholder={placeholder ?? title}
+              placeholderTextColor={GRAY.DEFAULT}
+              autoCapitalize="none"
+              autoCorrect={false}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+            />
+            <View style={styles.icon}>
+              <MaterialCommunityIcons
+                name={iconName}
+                size={20}
+                color={(() => {
+                  switch (true) {
+                    case isFocused:
+                      return PRIMARY.DEFAULT;
+                    case !!value:
+                      return BLACK;
+                    default:
+                      return GRAY.DEFAULT;
+                  }
+                })()}
+              />
+            </View>
+          </View>
+        </View>
+      );
+    };
+    
+    Input.defaultProps = {
+      keyboardType: keyboardTypes.DEFAULT,
+      returnKeyType: ReturnKeyTypes.DONE,
+    };
+    
+    Input.PropTypes = {
+      title: PropTypes.string.isRequired,
+      placeholder: PropTypes.string,
+      keyboardTypes: PropTypes.oneOf(Object.values(keyboardTypes)),
+      returnKeyType: PropTypes.oneOf(Object.values(ReturnKeyTypes)),
+      secureTextEntry: PropTypes.bool,
+      value: PropTypes.string,
+      iconName: PropTypes.oneOf(Object.values(IconNames)),
+    };
+    
+    const styles = StyleSheet.create({
+      hasValueTitle: {
+        color: BLACK,
+      },
+    
+      hasValueInput: {
+        borderColor: BLACK,
+        color: BLACK,
+      },
+    
+      container: {
+        width: '100%',
+        paddingHorizontal: 20,
+        marginVertical: 10,
+      },
+    
+      title: {
+        marginBottom: 4,
+        color: GRAY.DEFAULT,
+      },
+    
+      focusedTitle: {
+        fontWeight: '600',
+        color: PRIMARY.DEFAULT,
+      },
+    
+      input: {
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        height: 42,
+        borderColor: GRAY.DEFAULT,
+        paddingLeft: 30,
+      },
+    
+      icon: {
+        position: 'absolute',
+        left: 8,
+        height: '100%',
+        justifyContent: 'center',
+      },
+    
+      focusedInput: {
+        borderWidth: 2,
+        borderColor: PRIMARY.DEFAULT,
+        color: PRIMARY.DEFAULT,
+      },
+    });
+    
+    export default Input;
+    
+    ```
+    
+    ![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/6c497a36-044d-4acb-b996-e61b39f492c9/2fe3c7d9-8dd1-4938-b552-f7d614f4e506/image.png)
